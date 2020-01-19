@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html >
+<head>
+<meta charset="ISO-8859-1">
+<title>ChatBot</title>
+<style>
+.container
+{
+	width: 50%;
+	margin:auto;		
+	border: 3px solid black;
+}
+.container h1
+{
+	text-align: center;
+}
+#messages
+{
+	height: 100%;
+  
+  position: relative;
+  z-index: 1;
+  
+  overflow-x: hidden;
+  
+  
+
+}
+.prevmessages
+{
+	height:100%;
+	
+	position:relative;
+	
+	z-index:1;
+	
+}
+.container input[type="text"]
+{
+	width: 70%;
+    padding: 8px;
+    margin-left: 8px;
+    margin-bottom: 8px;
+    float: left;
+
+}
+#submitbtn
+{
+	
+	float: left;
+	
+
+
+}
+.container input[type="submit"]
+{
+	background: black;
+	color: white;
+	padding: 8px;
+    margin-left: 8px;
+    margin-bottom: 8px;
+}
+#welcome
+{
+	text:align:center;
+	
+}
+#msg
+{
+	font-size: 20px;
+	font-family: serif;
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+<h1 id="welcome">Welcome to DarwinBox ChatBot</h1>
+
+<div id="messages">
+<p id="msg"></p>
+<div id="showmessages">
+<input type="text" id="usrmsg" placeholder="Enter your Message" onkeydown="if (event.keyCode==13) document.getElementById('submitbtn').click()">
+
+<input type="submit" value="submit"  id="submitbtn"onclick=loadMessages()>
+</div>
+</div>
+
+<div class="prevmessages">
+<input type="submit" value="LoadPrevMessages" id="loadprevmessages"  onclick=loadPrevMessages()>
+</div>
+<br>
+<input type="submit" value="log out" id="logout" onclick=logout()>
+</div>
+</body>
+<script type="text/javascript">
+	
+	//function to logout
+	
+	function logout()
+	{
+		sessionStorage.clear();
+		location.replace("http://localhost:8080/login");
+	}
+	
+	
+	//function to load prevMessages
+	
+	function loadPrevMessages()
+	{
+		var count=0;
+		var email=sessionStorage.getItem("email");
+		var d=document.getElementById("msg");
+		d.innerHTML="";
+		d.scrollIntoView();
+		var submit=document.getElementById("showmessages");
+		submit.scrollIntoView();
+		var messages="";
+		var xmlhttp=new XMLHttpRequest();
+		var i,j;
+		xmlhttp.onreadystatechange=function()
+		{
+			if(this.readyState==4 && this.status==200){
+			var responseData=this.responseText;
+			var jsonparser=JSON.parse(responseData);
+			var start=document.getElementById("msg");
+			
+			 messages=jsonparser.messages;
+			 var messagessplit=messages.split(",");
+			 for(i=0;i<messagessplit.length;i++){
+			 	var messagesagainsplit=messagessplit[i].split("/");
+			 	
+			 		
+			 		
+					var usrmsg=document.createElement("P");
+			 		usrmsg.innerText=messagesagainsplit[0];
+			 		usrmsg.style.textAlign="center";
+			 		usrmsg.style.backgroundColor="#bae8c6";
+			 		usrmsg.style.color="black";
+			 		start.appendChild(usrmsg);
+			 		
+			 		var servmsg=document.createElement("P");
+			 		//servmsg.innerHTML=messagesagainsplit[1];
+			 		servmsg.style.backgroundColor="#e3e6e4";
+					servmsg.style.color="black";
+					servmsg.innerText=messagesagainsplit[1];
+					start.appendChild(servmsg);
+					start.scrollIntoView();
+			 		
+			 }
+			}
+			
+			
+			
+		}
+		
+		
+		
+		xmlhttp.open("GET","http://localhost:8080/getPrevMessages?email="+email,false);
+		xmlhttp.send();
+		
+		
+		
+		
+	}
+	
+	function loadMessages()
+	{
+		
+	var xmlhttp=new XMLHttpRequest();
+	var str	=document.getElementById("usrmsg").value;
+	document.getElementById("usrmsg").scrollIntoView();
+	var start=document.getElementById("msg");
+	var usrmsg=document.createElement("P");
+	usrmsg.innerHTML=str;
+	start.appendChild(usrmsg);
+	usrmsg.style.textAlign="center";
+	usrmsg.style.backgroundColor="#bae8c6";
+	usrmsg.style.color="black";
+	document.getElementById("usrmsg").value="";
+	var submit=document.getElementById("submitbtn");
+	document.getElementById("submitbtn").scrollIntoView(true);
+	var responsefromserver="";
+	xmlhttp.onreadystatechange=function()
+	{
+		if(this.readyState==4 && this.status==200)
+			{
+			var responseData=this.responseText;
+			console.log(responseData);
+			if(responseData.length==0)
+			{
+				var usrresp=document.createElement("P");
+				usrresp.style.backgroundColor="#e3e6e4";
+				usrresp.style.color="black";
+				
+				usrresp.innerText="Sorry I could not help you with that";
+				responsefromserver="Sorry I could not help you with that";
+				start.appendChild(usrresp);	
+				start.scrollIntoView();
+			}
+			else
+			{
+			var jsonparser=JSON.parse(responseData);
+			var usrresp=document.createElement("P");
+			var totalmessages=jsonparser.messages;
+			var splittedmessages=totalmessages.split("/");
+			console.log(splittedmessages);
+			var randmsg=splittedmessages[Math.floor(Math.random()*splittedmessages.length)];
+			
+			usrresp.innerHTML=randmsg;
+			usrresp.style.backgroundColor="#e3e6e4";
+			usrresp.style.color="black";
+			start.appendChild(usrresp);
+			start.scrollIntoView();
+			responsefromserver=randmsg;
+			
+			if(str==="log me out")
+			{
+				
+				sessionStorage.clear();
+				location.replace("http://localhost:8080/login");
+				
+			}
+			}
+			
+			}
+		
+		
+	}
+	
+	
+	//alert("http://localhost:8080/getMessageResponse?messageId="+str);
+		
+		xmlhttp.open("GET","http://localhost:8080/getMessageResponse?messageId="+str,false);
+		xmlhttp.send();
+		
+		var e=sessionStorage.getItem("email");
+		insert(e,str+"/"+responsefromserver);
+		
+	}
+	function insert( e, str)
+	{
+		var xmlhttp=new XMLHttpRequest();
+		//alert(str);
+		xmlhttp.onreadystatechange=function()
+		{
+			if(this.readyState==4 && this.status==200)
+				{
+					console.log("insertion successfull");
+				}
+			//alert(this.readyState+" "+this.status);
+			
+			//alert(this.readyState+" "+this.status+"http://localhost:8080/insertMessages?email="+e+"&&messages="+str);
+		}
+		
+		//http://localhost:8080/insertMessages?email=maheshbabunani767@gmail.com&&messages=hi|hello
+		xmlhttp.open("GET","http://localhost:8080/updateMessages?email="+e+"&&messages="+str,false);
+		xmlhttp.send();
+	}
+</script>
+</html>

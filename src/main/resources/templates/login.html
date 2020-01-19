@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymyleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Login</title>
+<style type="text/css">
+	.container
+	{
+		width: 50%;
+		margin: auto;
+		border: 3px solid black;
+			
+	}
+
+	#login
+	{
+		margin-left: 45%;
+		font-style: italic;
+		font-size: 25px;
+
+	}
+	.login label
+	{
+		display: block;
+		font-style: bold;
+		margin-left: 8px;
+		font-size: 18px;
+		padding: 8px;
+
+	}
+
+	.login input[type="text"]
+	{
+		width: 90%;
+		padding: 8px;
+		margin-left: 8px;	
+
+	}
+	.login input[type="password"]
+	{
+		width: 90%;
+		padding: 8px;
+		margin-left: 8px;
+	}
+	.login input[type="submit"]
+	{
+		padding: 8px;
+		color: white;
+		background: black;
+		margin: 8px;
+	}
+	.login p
+	{
+		margin-left: 8px;
+	}
+
+	
+
+
+</style>
+</head>
+<body>
+<div class="container">
+	<label id="login">login</label>
+	<div class="login">
+		<label >Email</label>
+		<input type="text" id="email" name="uname">
+		<br>
+		<label >Password</label>
+		<input type="password" id="password" name="upwd">
+		<br>
+		<input type="submit" value="submit" onClick=checklogin() >
+		<p id="errorid"></p>
+		<input type="submit" value="register" onClick=register()>
+		</div>
+</body>
+<script type="text/javascript">
+	function register()
+	{
+		location.replace("http://localhost:8080/register");
+	}
+	function checklogin()
+	{
+		
+		var email=document.getElementById("email").value;
+		var password=document.getElementById("password").value;
+		//alert(email+" "+password);
+		
+		
+		xmlhttp=new XMLHttpRequest();
+		
+		xmlhttp.onreadystatechange=function()
+		{
+			
+			
+			if(this.readyState==4 && this.status==200)
+				{
+				var responsedata=this.responseText;
+				console.log(responsedata);
+				if(responsedata.length==0)
+					{
+						
+						var error=document.getElementById("errorid");
+						error.innerHTML="Email or password is incorrect";
+						
+					}
+				else 
+					{
+						var jsonparser=JSON.parse(responsedata);
+						var username=jsonparser.email;
+						var userpassword=jsonparser.password;
+						if(username==email && userpassword==password)
+							{
+							sessionStorage.setItem("email",username);
+							
+							location.replace("http://localhost:8080/getMessage");
+							}
+						else
+							{
+							var error=document.getElementById("errorid");
+							error.innerHTML="Email or Password is incorrect";
+							}
+							
+					}
+				
+				}
+			//alert(this.readyState+" "+this.status);
+			
+		}
+		
+		
+		xmlhttp.open("GET","http://localhost:8080/checkLogin?email="+email,false);
+		xmlhttp.send();
+		
+	}
+</script>
+</html>

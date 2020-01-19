@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="www.thymyleaf.org">
+<head>
+<meta charset="ISO-8859-1">
+<title>Register</title>
+<style type="text/css">
+
+
+	#register
+	{
+		
+		font-size: 30px;
+		padding: 10px;
+		margin-left: 40%;
+		font-style: italic;
+		font-family: serif;
+
+	}
+	.container
+	{
+
+		width: 50%;
+		
+		background: #fff;
+		margin: auto;
+		border: 2px solid black;
+
+	}
+
+	
+	.register label 
+	{
+
+		display: block;
+		padding:10px 15px;
+		font-size: 18px;
+	}
+
+	.register input[type="text"] ,input[type="password"],input[type="email"]
+	{
+		padding: 8px;
+		margin-left: 10px;
+		width: 90%;
+	}
+
+	.register input[type="submit"]
+	{
+		padding:10px 15px;
+		background: #333;
+		color: white;
+		margin-left: 10px;
+		margin-bottom: 5px;
+
+	}
+
+
+
+
+</style>
+</head>
+<body>
+<div class="container">
+
+	<label id="register">Register</label>
+<div class="register">
+<label >Firstname</label>
+<input type="text" id="firstname">
+<br>
+<label >Lastname</label>
+<input type="text" id="lastname">
+<br>
+<label >Email</label>
+<input type="email" id="email">
+<br>
+<label >Password</label>
+<input type="password" id="password">
+<br>
+<p id="messageinformer"></p>
+<input type="submit" value="submit" onClick=saveUser()>
+</div>
+
+</div>
+
+</body>
+<script>
+function saveUser()
+{
+	var firstname=document.getElementById("firstname").value;
+	var lastname=document.getElementById("lastname").value;
+	var email=document.getElementById("email").value;
+	var password=document.getElementById("password").value;
+	
+	var d=document.getElementById("messageinformer");
+	var jsonobj=JSON.stringify(
+			{
+				"firstname":firstname,
+				"lastname":lastname,
+				"email":email,
+				"password":password
+			}
+			);
+
+	
+	if(validate(firstname,lastname,email,password))
+		{
+	
+	var xmlhttp=new XMLHttpRequest();
+	
+	xmlhttp.onreadystatechange=function()
+	{
+		
+		if(this.readyState==4 && this.status==200)
+			{
+				
+				d.innerHTML="Successfully Registered !!!";
+				location.replace("http://localhost:8080/login");
+			}
+		
+		
+	}
+	
+	
+	
+	
+	
+	xmlhttp.open("POST","http://localhost:8080/addUser",true);
+	xmlhttp.setRequestHeader('Content-type','application/json;charset=UTF-8');
+	xmlhttp.send(jsonobj);
+	
+		}
+
+
+
+}
+function validate(firstname,lastname,email,password)
+{
+	var d=document.getElementById("messageinformer");
+	if(firstname.length==0)
+	{
+		d.innerHTML="firstname is required";
+		d.style.color="#ff0000";
+		return false;
+	}
+	 if(lastname.length==0)
+	{
+	d.innerHTML="lastname is required";
+	d.style.color="#ff0000";
+	return false;
+	}
+	 if(email.length==0)
+	{
+	d.innerHTML="email is required";
+	d.style.color="#ff0000";
+	return false;
+	
+	}
+	 if(password.length==0)
+	{
+	d.innerHTML="password is required";
+	d.style.color="#ff0000";
+	return false;
+	
+	}
+	 if(checkEmail(email)){
+		d.innerHTML="email is already present";
+		d.style.coler="#ff0000";
+		return false;
+	
+	}
+	
+		return true;
+	
+
+}
+function checkEmail(email)
+{
+	xmlhttp=new XMLHttpRequest();
+	//alert("checking email"+email);
+	
+	xmlhttp.onreadystatechange=function()
+	{
+		
+		if(this.readyState==4 && this.status==200)
+			{
+				var responsedata=this.responseText;
+				console.log(responsedata);
+				if(responsedata.length==0)
+					return false;
+				else
+					return true;
+			
+			}
+		//alert(email+" "+this.readyState+" "+this.status+"http://localhost:8080/checkEmail?email="+email);
+	}
+	
+	
+	xmlhttp.open("GET","http://localhost:8080/checkEmail?email="+email,true);
+	xmlhttp.send();
+	
+}
+</script>
+
+</html>
